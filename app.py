@@ -1,8 +1,3 @@
-from errno import ENETRESET
-import math
-from random import gammavariate
-import re
-from turtle import color
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
 import firebase_admin
@@ -24,77 +19,7 @@ collection = db.collection('users')
 
 @app.route("/")
 def hello():
-    return "heheh homeecjn"
-
-@app.route("/sms", methods=['POST'])
-def sms_reply():
-    msg = request.form.get('Body')
-    mobile = request.form.get('From').split('+')[1]
-    name = request.form.get('ProfileName')
-    
-
-    resp = MessagingResponse()
-    doc = collection.document(mobile).get()
-    options = ["1","2","3","4","5","6","7"]
-    # color = ['yellow', 'red']
-    if doc.exists:
-        
-        if msg=="9":
-            collection.document(mobile).delete()
-            resp.message(f'successfully exited game')
-            return str(resp)
-        info = doc.to_dict()
-        stage = info['stage']
-
-        if stage == "choose_color":
-            if msg not in ["1","2"]:
-                resp.message(f"wrong input, try again lol\n\n~or press 9 to exit the game~")
-                return resp
-            else:
-                collection.document(mobile).update({'stage':'gameon', 'color':int(msg)-1})
-                # return 
-        print(f'Document data: {doc.to_dict()}')
-        matrix = info['game_state']
-        equivalent = {'0': '🔴','1':'🟡','2':'⬛'}
-        matrix_beautiful = ""
-        for i in matrix:
-            for j in i:
-                matrix_beautiful+=equivalent[j]
-            matrix_beautiful+="\n"
-        matrix_beautiful+="1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣\n"
-
-        if msg in options:
-            msg = int(msg)
-            for i in range(7):
-                if matrix[msg][6-i]=="2":
-                    hehe = list(matrix[msg])
-                    hehe[6-i]='1'
-                    print(hehe)
-                    matrix[msg] = "".join(hehe)
-                    # lol = "1111111"
-                    collection.document(mobile).update({'game_state': matrix})
-                    break
-
-        resp.message(f"let's continue the game, {name}\nyour game state is\n\n{matrix_beautiful}\nEnter the number corresponding to the column you wanna put your color into\n\n\n~or press 9 to exit the game~")
-
-    
-    else:
-        matrix = ["2222222","2222222","2222222","2222222","2222222","2222222","2222222"]
-        collection.document(mobile).set({'name': name, 'game_state': matrix, 'stage': 'choose_color', 'color': 0})
-        resp.message(f"welcome to the game, {name}\nWhich color would you like to take up to play?\n1: Yellow\n2: Red\n\n\n~or press 9 to exit the game~")
-
-
-
-    
-    # resp.message(f"aakash bot is happy that you said {msg}")
-
-    return str(resp)
-
-@app.route('/check')
-def check():
-    collection.document('hello').delete()
-    return "hemlo"
-
+    return "api root"
 
 
 @app.route("/message", methods=['POST'])
@@ -153,7 +78,7 @@ def message():
                         didplayerwin = winstatus(matrix, info['color'])
 
                         if didplayerwin:
-                            resp.message(f"{emojify(listlist_to_stringlist(matrix))}\n\nwoohoooo!!! damn you won the game, cheers!!")
+                            resp.message(f"{emojify(listlist_to_stringlist(matrix))}\n\nwoohoooo!!! damn you won the game, cheers 🍻 ")
                             collection.document(mobile).delete()
                             return str(resp)
                         if info['color'] ==1:
@@ -186,26 +111,14 @@ def message():
                         
 
                         break
-                # return response
+                # return default response
                 resp.message('some error occured')
                 return str(resp)
             
         resp.message("wrong input you entered")
         return str(resp)
                     
-
-
-
-
-        
-        
-
-        
-        
-        
-
-        
-        
+ 
        
 
     else:
